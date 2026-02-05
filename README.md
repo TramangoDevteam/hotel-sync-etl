@@ -1,10 +1,10 @@
-# 🚀 Stream-ETL
+# 🚀 Hotel Stream-ETL
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green?style=flat-square&logo=node.js)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](tsconfig.json)
-[![GitHub stars](https://img.shields.io/github/stars/TramangoDevteam/hotel-stream-etl?style=flat-square&logo=github)](https://github.com/yourusername/stream-etl)
-[![GitHub issues](https://img.shields.io/github/issues/TramangoDevteam/hotel-stream-etl?style=flat-square&logo=github)](https://github.com/yourusername/stream-etl/issues)
+[![GitHub stars](https://img.shields.io/github/stars/TramangoDevteam/hotel-stream-etl?style=flat-square&logo=github)](https://github.com/TramangoDevteam/hotel-stream-etl)
+[![GitHub issues](https://img.shields.io/github/issues/TramangoDevteam/hotel-stream-etl?style=flat-square&logo=github)](https://github.com/TramangoDevteam/hotel-stream-etl/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13%2B-336791?style=flat-square&logo=postgresql)](https://www.postgresql.org)
 
