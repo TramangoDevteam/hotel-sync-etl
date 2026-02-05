@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "forceConsistentCasingInFileNames": true,
+    "module": "NodeNext", // Required for modern Node.js
+    "moduleResolution": "NodeNext",
+    "outDir": "./dist", // Where compiled code goes
+    "rootDir": "./src", // Where your source code lives
+    "strict": true, // Essential for catching null errors in data
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*"]
+}

@@ -1,0 +1,58 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+*.log
+logs/
+pipeline_run.log
+
+# Cache
+.cache/
+.eslintcache
+.parcel-cache
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database & Credentials
+*.db
+*.sqlite
+*.sqlite3
+*.pem
+*.key
+*.cert
+
+# Testing
+coverage/
+.nyc_output/
+
+# Development
+downloads/
+data/
+temp/
+tmp/
+
+# Exclude from open source
+drop_table.js
+test-connection.ts
+src/pipelines/step3Only.ts
