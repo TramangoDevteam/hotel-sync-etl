@@ -3,10 +3,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green?style=flat-square&logo=node.js)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](tsconfig.json)
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/stream-etl?style=flat-square&logo=github)](https://github.com/yourusername/stream-etl)
-[![GitHub issues](https://img.shields.io/github/issues/yourusername/stream-etl?style=flat-square&logo=github)](https://github.com/yourusername/stream-etl/issues)
+[![GitHub stars](https://img.shields.io/github/stars/TramangoDevteam/hotel-stream-etl?style=flat-square&logo=github)](https://github.com/yourusername/stream-etl)
+[![GitHub issues](https://img.shields.io/github/issues/TramangoDevteam/hotel-stream-etl?style=flat-square&logo=github)](https://github.com/yourusername/stream-etl/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
-[![AWS](https://img.shields.io/badge/AWS-S3%20%7C%20Lambda-orange?style=flat-square&logo=amazon-aws)](https://aws.amazon.com)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13%2B-336791?style=flat-square&logo=postgresql)](https://www.postgresql.org)
 
 **Zero-disk ETL pipeline for streaming massive datasets directly from compressed sources to PostgreSQL via AWS S3**
@@ -26,7 +25,7 @@ Download (2.7GB) → Decompress to Disk (40GB) → Upload to S3 → Insert to DB
 ❌ Slow & Expensive
 ```
 
-Stream-ETL:
+Hotel Stream-ETL:
 
 ```
 Download → Decompress (Memory Only) → S3 → PostgreSQL
