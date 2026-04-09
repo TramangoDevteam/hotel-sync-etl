@@ -88,19 +88,19 @@ hotel_regions          region lookup (country, city, IATA code)
 
 Key columns on `hotels`:
 
-| Column | Source field | Notes |
-|---|---|---|
-| `hotel_id` | `record.id` | string slug, unique key |
-| `hid` | `record.hid` | numeric API id |
-| `name` | `record.name` | plain string |
-| `address` | `record.address` | full address string |
-| `postal_code` | `record.postal_code` | not `zip_code` |
-| `latitude/longitude` | `record.latitude/longitude` | cleared if out of range |
-| `star_rating` | `record.star_rating` | 0–5, cleared if out of range |
-| `region_id` | FK → `hotel_regions.id` | from `record.region` object |
-| `serp_filters` | `record.serp_filters` | `TEXT[]`, GIN indexed |
-| `facts` | `record.facts` | JSONB (rooms count, electricity, …) |
-| `raw_data` | full record | JSONB, always stored |
+| Column               | Source field                | Notes                               |
+| -------------------- | --------------------------- | ----------------------------------- |
+| `hotel_id`           | `record.id`                 | string slug, unique key             |
+| `hid`                | `record.hid`                | numeric API id                      |
+| `name`               | `record.name`               | plain string                        |
+| `address`            | `record.address`            | full address string                 |
+| `postal_code`        | `record.postal_code`        | not `zip_code`                      |
+| `latitude/longitude` | `record.latitude/longitude` | cleared if out of range             |
+| `star_rating`        | `record.star_rating`        | 0–5, cleared if out of range        |
+| `region_id`          | FK → `hotel_regions.id`     | from `record.region` object         |
+| `serp_filters`       | `record.serp_filters`       | `TEXT[]`, GIN indexed               |
+| `facts`              | `record.facts`              | JSONB (rooms count, electricity, …) |
+| `raw_data`           | full record                 | JSONB, always stored                |
 
 Fields that **do not exist** in the real API (confirmed by runtime inspection):
 `description`, `country`, `state`, `city`, `zip_code`, `fax`, `website`, `amenities`, `languages`
@@ -111,17 +111,17 @@ Fields that **do not exist** in the real API (confirmed by runtime inspection):
 
 Every batch runs through `hotelValidator.validateBatch()` before any DB work:
 
-| Issue | Action |
-|---|---|
-| Missing/blank `id` | **Reject** — record dropped |
-| Duplicate `id` in same batch | **Reject** — second one dropped |
-| Non-object record | **Reject** |
-| Lat/lng out of range or unpaired | **Warn** — coords cleared to null |
-| `star_rating` outside 0–5 | **Warn** — cleared to null |
-| String-encoded numbers (`"3.5"`) | **Coerce** silently |
-| Field exceeds length limit | **Warn** — truncated |
-| Wrong-type arrays / nested objects | **Warn** — cleared or filtered |
-| Missing boolean flags | **Default** to `false` |
+| Issue                              | Action                            |
+| ---------------------------------- | --------------------------------- |
+| Missing/blank `id`                 | **Reject** — record dropped       |
+| Duplicate `id` in same batch       | **Reject** — second one dropped   |
+| Non-object record                  | **Reject**                        |
+| Lat/lng out of range or unpaired   | **Warn** — coords cleared to null |
+| `star_rating` outside 0–5          | **Warn** — cleared to null        |
+| String-encoded numbers (`"3.5"`)   | **Coerce** silently               |
+| Field exceeds length limit         | **Warn** — truncated              |
+| Wrong-type arrays / nested objects | **Warn** — cleared or filtered    |
+| Missing boolean flags              | **Default** to `false`            |
 
 Rejected records are appended to `downloads/rejected_YYYY-MM-DD.jsonl` so you can inspect and replay them.
 
@@ -133,14 +133,14 @@ Skip validation with `insertHotels(batch, { validate: false })` if you need maxi
 
 All runnable scripts are in `scripts/`. Run with `npx ts-node scripts/<file>.ts`.
 
-| Script | Purpose |
-|---|---|
+| Script                      | Purpose                                                                                                |
+| --------------------------- | ------------------------------------------------------------------------------------------------------ |
 | `testHotelStructure.ts [N]` | Stream N real records from the API and print their exact JSON structure + mapping check. No DB needed. |
-| `testEndToEnd.ts` | Fetch 5 real hotels, insert them, verify every table and field. Needs DB. |
-| `testValidation.ts` | Unit-test the validation gate with 15 intentional malformed inputs. No DB, no API. |
-| `pipelineUsageExample.ts` | Full pipeline example (same as `npm start`). |
-| `serviceUsageExample.ts` | Lower-level `HotelDumpService` usage examples. |
-| `schemaInspector.ts` | Deeper schema analysis — downloads a sample and generates suggested DDL. |
+| `testEndToEnd.ts`           | Fetch 5 real hotels, insert them, verify every table and field. Needs DB.                              |
+| `testValidation.ts`         | Unit-test the validation gate with 15 intentional malformed inputs. No DB, no API.                     |
+| `pipelineUsageExample.ts`   | Full pipeline example (same as `npm start`).                                                           |
+| `serviceUsageExample.ts`    | Lower-level `HotelDumpService` usage examples.                                                         |
+| `schemaInspector.ts`        | Deeper schema analysis — downloads a sample and generates suggested DDL.                               |
 
 ```bash
 # Inspect real hotel structure (fastest sanity check — no DB needed)
@@ -167,7 +167,9 @@ const svc = new HotelDumpService({ keyId, apiKey, downloadDir: "./downloads" });
 const url = await svc.fetchDumpUrl();
 const compressed = await svc.downloadDump(url.data.url);
 const jsonl = await svc.decompressDump(compressed);
-await svc.parseDump(jsonl, async (batch) => { /* process batch */ });
+await svc.parseDump(jsonl, async (batch) => {
+  /* process batch */
+});
 ```
 
 ### `PostgresService`
@@ -175,17 +177,17 @@ await svc.parseDump(jsonl, async (batch) => { /* process batch */ });
 ```typescript
 const db = new PostgresService({ host, port, database, user, password, ssl });
 await db.testConnection();
-await db.createSchema();         // idempotent, creates all 7 tables
+await db.createSchema(); // idempotent, creates all 7 tables
 
 const stats = await db.insertHotels(records, {
   batchSize: 100,
-  validate: true,                // default — run validation gate
+  validate: true, // default — run validation gate
   rejectionLog: { dir: "./downloads" },
 });
 // stats: { totalRecords, successfulInserts, failedInserts, rejectedByValidation, validationWarnings }
 
 const hotel = await db.getHotel("welcome_perm");
-const results = await db.searchHotels("Perm", 3);  // city substring + min stars
+const results = await db.searchHotels("Perm", 3); // city substring + min stars
 ```
 
 ### `S3StreamService`
@@ -195,9 +197,14 @@ const results = await db.searchHotels("Perm", 3);  // city substring + min stars
 await decompressStreamToS3(compressedPath, s3Config, "hotel_dump.jsonl");
 
 // Stream JSONL from S3 in batches
-await streamHotelsFromS3(s3Config, "hotel_dump.jsonl", async (batch) => {
-  await db.insertHotels(batch);
-}, 200);
+await streamHotelsFromS3(
+  s3Config,
+  "hotel_dump.jsonl",
+  async (batch) => {
+    await db.insertHotels(batch);
+  },
+  200,
+);
 ```
 
 ---
