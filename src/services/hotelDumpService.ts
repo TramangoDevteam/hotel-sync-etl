@@ -373,62 +373,50 @@ class HotelDumpService {
     filePath: string,
     onBatch?: (batch: HotelRecord[]) => Promise<void>,
   ): Promise<HotelRecord[]> {
-    return new Promise((resolve, reject) => {
-      const allRecords: HotelRecord[] = [];
-      let currentBatch: HotelRecord[] = [];
-      let lineCount = 0;
-      let successCount = 0;
-      let errorCount = 0;
+    // Use async-iterator (for await…of) so each line is fully awaited before
+    // the next one fires — avoids the readline "async handler not awaited" race.
+    const allRecords: HotelRecord[] = [];
+    let currentBatch: HotelRecord[] = [];
+    let lineCount = 0;
+    let successCount = 0;
+    let errorCount = 0;
 
-      const rl = createInterface({
-        input: createReadStream(filePath),
-        crlfDelay: Infinity,
-      });
+    const rl = createInterface({
+      input: createReadStream(filePath),
+      crlfDelay: Infinity,
+    });
 
-      const processBatch = async () => {
-        if (currentBatch.length > 0 && onBatch) {
-          try {
-            await onBatch([...currentBatch]);
-          } catch (error) {
-            console.error("✗ Error processing batch:", error);
-          }
+    const processBatch = async () => {
+      if (currentBatch.length === 0) return;
+      if (onBatch) {
+        try {
+          await onBatch([...currentBatch]);
+        } catch (error) {
+          console.error("✗ Error processing batch:", error);
         }
-        if (!onBatch) {
-          allRecords.push(...currentBatch);
-        }
-        currentBatch = [];
-      };
+      } else {
+        allRecords.push(...currentBatch);
+      }
+      currentBatch = [];
+    };
 
-      rl.on("line", async (line: string) => {
+    try {
+      for await (const line of rl) {
         lineCount++;
-
         try {
           const trimmed = line.trim();
+          if (!trimmed) continue;
 
-          // Skip empty lines
-          if (!trimmed) {
-            return;
-          }
-
-          // Handle various JSONL formats
           let cleanedLine = trimmed;
+          if (cleanedLine.endsWith(",")) cleanedLine = cleanedLine.slice(0, -1);
 
-          // Remove trailing commas
-          if (cleanedLine.endsWith(",")) {
-            cleanedLine = cleanedLine.slice(0, -1);
-          }
-
-          // Parse JSON
           if (cleanedLine.startsWith("{")) {
-            const record = JSON.parse(cleanedLine);
+            const record = JSON.parse(cleanedLine) as HotelRecord;
             currentBatch.push(record);
             successCount++;
 
-            // Process batch when it reaches batch size
             if (currentBatch.length >= this.config.batchSize) {
-              rl.pause();
               await processBatch();
-              rl.resume();
             }
           }
         } catch (error) {
@@ -443,24 +431,16 @@ class HotelDumpService {
             console.warn("⚠ Suppressing further parse warnings...");
           }
         }
-      });
+      }
+    } finally {
+      // Process any remaining records after the file ends
+      await processBatch();
+    }
 
-      rl.on("close", async () => {
-        // Process remaining records
-        await processBatch();
+    console.log(`✓ Parsed ${successCount} hotel records`);
+    if (errorCount > 0) console.warn(`⚠ Skipped ${errorCount} invalid lines`);
 
-        console.log(`✓ Parsed ${successCount} hotel records`);
-        if (errorCount > 0) {
-          console.warn(`⚠ Skipped ${errorCount} invalid lines`);
-        }
-        resolve(allRecords);
-      });
-
-      rl.on("error", (error: Error) => {
-        console.error("✗ Error parsing dump:", error);
-        reject(error);
-      });
-    });
+    return allRecords;
   }
 
   /**

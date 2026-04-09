@@ -97,6 +97,16 @@ class HotelSyncPipeline {
     this.postgresService = new PostgresService(this.config.postgresConfig);
 
     this.s3Config = this.config.s3Config;
+
+    // Graceful shutdown: close the DB pool on SIGINT / SIGTERM so connections
+    // are not left dangling when the process is killed or interrupted.
+    const shutdown = async (signal: string) => {
+      console.log(`\n${signal} received — closing DB pool...`);
+      await this.postgresService.close().catch(() => {});
+      process.exit(0);
+    };
+    process.once("SIGINT",  () => shutdown("SIGINT"));
+    process.once("SIGTERM", () => shutdown("SIGTERM"));
   }
 
   /**
@@ -128,14 +138,14 @@ class HotelSyncPipeline {
         "╚═══════════════════════════════════════════════════════╝\n",
       );
 
-      // Step 1: Test database connection
+      // Step 0: Test database connection and create schema
       console.log("Step 0: Testing database connection...");
       await this.postgresService.testConnection();
-      await this.postgresService.createHotelsTable();
+      await this.postgresService.createSchema();
 
       // Step 1: Check if recent file exists in S3, otherwise fetch and download
       console.log("\nStep 1: Checking for recent decompressed file in S3...");
-      let s3Key: string | null = await getRecentS3File(this.s3Config, 48);
+      s3Key = await getRecentS3File(this.s3Config, 48);
 
       if (s3Key) {
         console.log(`Using cached file in S3: ${s3Key}`);
@@ -248,12 +258,13 @@ class HotelSyncPipeline {
       // Cleanup
       if (!this.config.keepLocalFiles && filesToCleanup.length > 0) {
         console.log("Cleaning up temporary files...");
-        for (const filePath of filesToCleanup) {
+        const { promises: fsp } = await import("fs");
+        for (const fp of filesToCleanup) {
           try {
-            require("fs").unlinkSync(filePath);
-            console.log(`  ✓ Deleted: ${filePath}`);
-          } catch (error) {
-            console.warn(`  ⚠ Could not delete: ${filePath}`);
+            await fsp.unlink(fp);
+            console.log(`  ✓ Deleted: ${fp}`);
+          } catch {
+            console.warn(`  ⚠ Could not delete: ${fp}`);
           }
         }
       }

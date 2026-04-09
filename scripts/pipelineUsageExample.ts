@@ -1,4 +1,4 @@
-import HotelSyncPipeline from "./hotelSyncPipeline";
+import HotelSyncPipeline from "../src/pipelines/hotelSyncPipeline";
 
 /**
  * Complete pipeline example: Download → Decompress to S3 → PostgreSQL

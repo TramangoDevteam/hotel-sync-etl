@@ -86,18 +86,16 @@ async function decompressStreamToS3(
       }
     });
 
-    // Setup error handlers before starting
-    const errorHandler = (error: Error) => {
-      console.error(`✗ Error:`, error.message);
-      compressedStream.destroy();
-      decompressProcess.kill();
-      trackingStream.destroy();
-      throw error;
+    // Forward errors into the tracking stream so `upload.done()` rejects cleanly.
+    // Throwing inside event callbacks is silently swallowed — never do that.
+    const forwardError = (label: string) => (error: Error) => {
+      console.error(`✗ ${label} error:`, error.message);
+      trackingStream.destroy(error); // Upload will see this and reject
+      try { decompressProcess.kill(); } catch { /* already exited */ }
     };
 
-    compressedStream.on("error", errorHandler);
-    decompressProcess.on("error", errorHandler);
-    trackingStream.on("error", errorHandler);
+    compressedStream.on("error", forwardError("compressed stream"));
+    decompressProcess.on("error", forwardError("zstd process"));
 
     decompressProcess.stderr.on("data", (data: Buffer) => {
       const message = data.toString().trim();
@@ -106,18 +104,16 @@ async function decompressStreamToS3(
       }
     });
 
-    // Setup timeout
-    let timeoutCleared = false;
+    // Timeout: abort by destroying the tracking stream (Upload rejects)
     const timeoutId = setTimeout(() => {
       if (!dataFlowing) {
-        console.error(
-          "✗ Decompression timeout: no data flowing after 60 seconds",
-        );
-        decompressProcess.kill();
+        const err = new Error("Decompression stalled: no data after 60s");
+        console.error(`✗ ${err.message}`);
+        trackingStream.destroy(err);
+        try { decompressProcess.kill(); } catch { /* already exited */ }
         compressedStream.destroy();
-        throw new Error("Decompression stalled");
       }
-    }, 60000);
+    }, 60_000);
 
     // Pipe: compressed → zstd → tracking → S3
     compressedStream.pipe(decompressProcess.stdin);
@@ -163,8 +159,7 @@ async function decompressStreamToS3(
       `  Upload time: ${((Date.now() - uploadStart) / 1000).toFixed(2)}s`,
     );
 
-    // Cleanup process
-    decompressProcess.kill();
+    try { decompressProcess.kill(); } catch { /* already exited */ }
   } catch (error) {
     throw new Error(
       `Failed to decompress and upload to S3: ${

@@ -6,9 +6,11 @@
   "types": "dist/hotel-dump-service.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node src/services/usage.ts",
     "start": "node dist/pipelines/usage.js",
-    "pipeline": "ts-node src/pipelines/usage.ts",
+    "pipeline": "ts-node scripts/pipelineUsageExample.ts",
+    "inspect": "ts-node scripts/testHotelStructure.ts",
+    "test:e2e": "ts-node scripts/testEndToEnd.ts",
+    "test:validation": "ts-node scripts/testValidation.ts",
     "test": "jest",
     "lint": "eslint . --ext .ts"
   },

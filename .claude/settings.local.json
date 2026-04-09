@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx ts-node:*)",
+      "Bash(npx tsc:*)",
+      "Bash(psql -U postgres -c \"SELECT version\\(\\)\")",
+      "Bash(psql -c \"SELECT version\\(\\)\")",
+      "Bash(brew services:*)",
+      "Bash(pg_isready)",
+      "Bash(psql -U ohiozeomiunualex postgres -c \"CREATE DATABASE hotel_sync;\")",
+      "Bash(psql -U ohiozeomiunualex hotel_sync -c \"SELECT current_database\\(\\), current_user;\")",
+      "Bash(psql -U ohiozeomiunualex hotel_sync -c \"DROP SCHEMA public CASCADE; CREATE SCHEMA public;\")",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(grep -n \"from \\\\\"\\\\.\\\\.\" /Users/ohiozeomiunualex/hotel-sync/scripts/*.ts)",
+      "Bash(grep -n \"from \\\\\"\\\\.\" /Users/ohiozeomiunualex/hotel-sync/scripts/*.ts)",
+      "Bash(sed -i '' 's|from \"./hotelSyncPipeline\"|from \"../src/pipelines/hotelSyncPipeline\"|' /Users/ohiozeomiunualex/hotel-sync/scripts/pipelineUsageExample.ts)",
+      "Bash(sed -i '' 's|from \"./hotelDumpService\"|from \"../src/services/hotelDumpService\"|' /Users/ohiozeomiunualex/hotel-sync/scripts/serviceUsageExample.ts)",
+      "Bash(sed -i '' 's|from \"./services/postgresService\"|from \"../src/services/postgresService\"|' /Users/ohiozeomiunualex/hotel-sync/scripts/testEndToEnd.ts)",
+      "Bash(sed -i '' 's|from \"./services/hotelValidator\"|from \"../src/services/hotelValidator\"|' /Users/ohiozeomiunualex/hotel-sync/scripts/testValidation.ts)"
+    ]
+  }
+}

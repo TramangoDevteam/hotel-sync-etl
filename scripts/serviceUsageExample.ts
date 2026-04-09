@@ -1,4 +1,4 @@
-import HotelDumpService from "./hotelDumpService";
+import HotelDumpService from "../src/services/hotelDumpService";
 
 // Example 1: Basic usage with all records in memory
 async function basicExample() {
